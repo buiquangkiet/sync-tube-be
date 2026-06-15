@@ -1,0 +1,25 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: synctube
+  datasource:
+    url: jdbc:mysql://localhost:3306/synctube
+    username: root
+    password: 123456
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:synctube-dev-secret-key-change-in-production-32chars}
+    expiration-ms: 86400000
+  frontend:
+    url: ${FRONTEND_URL:http://localhost:5174}
+  cors:
+    allowed-origin-patterns: "http://localhost:*"
