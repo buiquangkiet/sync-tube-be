@@ -23,9 +23,11 @@ services:
       - .env
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-oauth,prod}
-      DATABASE_URL: jdbc:mysql://mysql:3306/synctube
-      DATABASE_USERNAME: root
-      DATABASE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQLHOST: mysql
+      MYSQLPORT: 3306
+      MYSQLUSER: root
+      MYSQLPASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQLDATABASE: synctube
     depends_on:
       mysql:
         condition: service_healthy

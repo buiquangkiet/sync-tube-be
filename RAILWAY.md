@@ -22,23 +22,31 @@ git push -u origin main
 2. **New Project** → **Deploy from GitHub repo** → chọn `sync-tube-be`
 3. Railway tự detect **Dockerfile** và build
 
-## 3. Thêm MySQL
+## 3. Thêm MySQL + nối biến (quan trọng)
 
 1. Trong project → **+ New** → **Database** → **MySQL**
-2. Đợi MySQL chạy xong
-3. Click service **Backend** → **Variables** → **Add Reference** (hoặc **Raw Editor**)
+2. Đợi MySQL chạy (status **Active**)
+3. Click service **`sync-tube-be`** → tab **Variables**
+4. Bấm **+ New Variable** → **Add Reference** (hoặc **Variable Reference**)
+5. Chọn service **MySQL** → tick **tất cả** biến: `MYSQLHOST`, `MYSQLPORT`, `MYSQLUSER`, `MYSQLPASSWORD`, `MYSQLDATABASE`
 
-Thêm biến tham chiếu MySQL (tên service MySQL có thể là `MySQL`):
+Hoặc dán thủ công vào **Raw Editor** (đổi `MySQL` nếu tên service khác):
 
-| Variable | Value (Railway reference) |
-|----------|---------------------------|
-| `MYSQLHOST` | `${{MySQL.MYSQLHOST}}` |
-| `MYSQLPORT` | `${{MySQL.MYSQLPORT}}` |
-| `MYSQLUSER` | `${{MySQL.MYSQLUSER}}` |
-| `MYSQLPASSWORD` | `${{MySQL.MYSQLPASSWORD}}` |
-| `MYSQLDATABASE` | `${{MySQL.MYSQLDATABASE}}` |
+```env
+MYSQLHOST=${{MySQL.MYSQLHOST}}
+MYSQLPORT=${{MySQL.MYSQLPORT}}
+MYSQLUSER=${{MySQL.MYSQLUSER}}
+MYSQLPASSWORD=${{MySQL.MYSQLPASSWORD}}
+MYSQLDATABASE=${{MySQL.MYSQLDATABASE}}
+```
 
-> Hoặc set thủ công `DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD` từ tab **Connect** của MySQL (đổi `mysql://` → `jdbc:mysql://` và thêm `?useSSL=true&allowPublicKeyRetrieval=true`).
+> **Lỗi thường gặp:**
+> - `Unable to determine Dialect` = thiếu biến `MYSQL*` hoặc **chưa set** `SPRING_PROFILES_ACTIVE=oauth,prod`
+> - `Connection refused` = backend đang connect `localhost:3306` → **profile prod chưa bật** hoặc `MYSQLHOST` trống/sai. Xóa biến `MYSQL*` cũ → thêm lại bằng **Reference** từ MySQL (đợi MySQL **Active** trước)
+
+**Cách nhanh:** chỉ cần 1 reference `MYSQL_URL` từ service MySQL (app tự convert sang JDBC).
+
+Sau khi thêm biến → **Redeploy** service backend.
 
 ## 4. Biến môi trường Backend
 
@@ -94,7 +102,8 @@ https://synctube-be-production.up.railway.app/login/oauth2/code/facebook
 | Lỗi | Cách xử lý |
 |-----|------------|
 | Build fail Java | Dockerfile dùng Java 21 — xem Deploy Logs |
-| DB connection fail | Kiểm tra `MYSQL*` references đã link đúng service MySQL |
+| DB connection fail / `Connection refused` | MySQL service phải **Active**. Set `SPRING_PROFILES_ACTIVE=oauth,prod`. Xóa `MYSQL*` trống → Add Reference từ MySQL. Hoặc chỉ reference `MYSQL_URL` |
+| `Unable to determine Dialect` | Giống trên — backend không connect được DB |
 | CORS | `FRONTEND_URL` khớp URL Vercel (không slash cuối) |
 | OAuth redirect mismatch | Redirect URI khớp chính xác domain Railway |
 | WebSocket fail | Dùng `wss://` (HTTPS), không `ws://` |

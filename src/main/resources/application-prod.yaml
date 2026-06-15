@@ -1,14 +1,18 @@
 spring:
   datasource:
-    url: ${DATABASE_URL:jdbc:mysql://${MYSQLHOST:localhost}:${MYSQLPORT:3306}/${MYSQLDATABASE:synctube}?useSSL=true&allowPublicKeyRetrieval=true}
-    username: ${DATABASE_USERNAME:${MYSQLUSER:root}}
-    password: ${DATABASE_PASSWORD:${MYSQLPASSWORD:}}
+    url: jdbc:mysql://${MYSQLHOST}:${MYSQLPORT}/${MYSQLDATABASE}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: ${MYSQLUSER}
+    password: ${MYSQLPASSWORD}
+    hikari:
+      connection-timeout: 60000
+      initialization-fail-timeout: 120000
   jpa:
     show-sql: false
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
         format_sql: false
 
 server:
